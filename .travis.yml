@@ -23,6 +23,6 @@ before_install:
 install:
   - echo "skip default gradlew assemble"
 script:
-  - ./gradlew release cobertura --info --stacktrace
+  - ./gradlew test --info --stacktrace
 after_success:
   - ./gradlew coveralls
