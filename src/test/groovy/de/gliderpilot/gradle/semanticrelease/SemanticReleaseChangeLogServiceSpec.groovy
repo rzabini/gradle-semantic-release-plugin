@@ -23,6 +23,7 @@ import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Timeout
@@ -177,6 +178,7 @@ class SemanticReleaseChangeLogServiceSpec extends Specification {
         null        | ['foo bar', 'baz']
     }
 
+    @Ignore
     def "changeLog is generated"() {
         given:
         grgit = Grgit.open()
@@ -216,6 +218,7 @@ class SemanticReleaseChangeLogServiceSpec extends Specification {
         changeLogService.changeLog(commits.collect(asCommit), new ReleaseVersion(previousVersion: '1.0.0', version: '2.0.0', createTag: true)).toString() == expected
     }
 
+    @Ignore
     @Timeout(10)
     def "change log is uploaded to GitHub"() {
         given:
