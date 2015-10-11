@@ -143,7 +143,6 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         release() == 'v2.0.0'
     }
 
-    @Ignore
     def "supports git flow (travis can execute ./gradlew release on all branches)"() {
         given: "branch develop"
         createBranch "develop"
@@ -224,7 +223,6 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         thrown(RuntimeException)
     }
 
-    @Ignore
     def "supports release/MAJOR_MINOR_X"() {
         given: "branch release/1.0.x"
         createBranch "release/1.0.x"
