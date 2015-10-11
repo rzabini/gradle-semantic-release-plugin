@@ -84,7 +84,6 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         type << ['feat', 'fix']
     }
 
-    @Ignore
     def "initial version is 1.0.0 even after breaking change"() {
         when: "a breaking change commit is made without prior version"
         commit("feat: foo\n\nBREAKING CHANGE: bar")
@@ -93,7 +92,6 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         release() == 'v1.0.0'
     }
 
-    @Ignore
     def "complete lifecycle"() {
         expect: 'no initial release without feature commit'
         release() == ''
