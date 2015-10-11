@@ -292,7 +292,7 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
     }
 
 
-    def executeOnShell(File workingDir, String... command) {
+    def executeOnWindows(File workingDir, String... command) {
         def lastLine
         def process = new ProcessBuilder(command)
                 .directory(workingDir)
@@ -314,7 +314,18 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         println "========"
         println "executing ${args.join(' ')}"
         println "--------"
-        executeOnShell(dir, args)
+        if(isWindows())
+            executeOnWindows(dir, args)
+        else{
+            def process = args.execute(null, dir)
+            String processOut = process.inputStream.text.trim()
+            String processErr = process.errorStream.text.trim()
+            println processOut
+            println processErr
+            if (process.waitFor() != 0)
+                throw new RuntimeException("failed to execute ${args.join(' ')}")
+            return processOut
+        }
     }
 
     def release() {
