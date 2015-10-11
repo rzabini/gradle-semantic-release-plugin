@@ -28,7 +28,49 @@ import spock.lang.Unroll
 class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
-        // create remote repository
+        setupGit()
+
+        setupGradleProject()
+
+        commitIntialLayout()
+    }
+
+    protected void setupGradleProject() {
+
+
+        buildFile << """
+            buildscript{
+                dependencies{
+                    classpath files('${getPluginCompileDir()}')
+                    classpath files('${getPluginCompileDir().replace('/classes/','/resources/')}')
+                }
+            }
+
+            apply plugin: 'de.gliderpilot.semantic-release'
+            println version
+        """
+        setupGitignore()
+
+        runTasksSuccessfully(':wrapper')
+    }
+
+    File setupGitignore() {
+        file('.gitignore') << '''\
+            .gradle-test-kit/
+            .gradle/
+            gradle/
+            build/
+            cobertura.ser
+        '''.stripIndent()
+    }
+
+    private void commitIntialLayout() {
+        commit('initial project layout')
+        push()
+    }
+
+    private void setupGit() {
+// create remote repository
         File origin = new File(projectDir, "../${projectDir.name}.git")
         origin.mkdir()
         execute origin, 'git', 'init', '--bare'
@@ -42,24 +84,21 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         execute 'git', 'remote', 'add', 'origin', "$origin"
         commit 'initial commit'
         push()
-
-        buildFile << '''
-            apply plugin: 'de.gliderpilot.semantic-release'
-            println version
-        '''
-        file('.gitignore') << '''\
-            .gradle-test-kit/
-            .gradle/
-            gradle/
-            build/
-            cobertura.ser
-        '''.stripIndent()
-
-        runTasksSuccessfully(':wrapper')
-
-        commit('initial project layout')
-        push()
     }
+
+    def getPluginCompileDir(){
+        URL url=SemanticReleasePlugin.class.getResource(SemanticReleasePlugin.class.getSimpleName() + ".class")
+        String classFilePath=new File(url.toURI()).absolutePath
+        if(isWindows())
+            classFilePath = classFilePath.replace('\\','/')
+        String classFileRelative = SemanticReleasePlugin.class.getName().replace('.', '/') + ".class"
+        classFilePath-classFileRelative
+    }
+
+    boolean isWindows(){
+        System.properties['os.name'].toLowerCase().contains('windows')
+    }
+
 
     @Unroll
     def "initial version is 1.0.0 after #type commit"() {
@@ -252,22 +291,34 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         thrown(RuntimeException)
     }
 
+
+    def executeOnShell(File workingDir, String... command) {
+        def lastLine
+        def process = new ProcessBuilder(command)
+                .directory(workingDir)
+                .redirectErrorStream(true)
+                .start()
+        process.inputStream.eachLine {
+            println it
+            lastLine = it
+        }
+
+        def exitValue = process.exitValue()
+        if(exitValue != 0)
+            throw new RuntimeException("failed to execute ${command.join(' ')}")
+        return lastLine
+
+    }
+
     def execute(File dir = projectDir, String... args) {
         println "========"
         println "executing ${args.join(' ')}"
         println "--------"
-        def process = args.execute(null, dir)
-        String processOut = process.inputStream.text.trim()
-        String processErr = process.errorStream.text.trim()
-        println processOut
-        println processErr
-        if (process.waitFor() != 0)
-            throw new RuntimeException("failed to execute ${args.join(' ')}")
-        return processOut
+        executeOnShell(dir, args)
     }
 
     def release() {
-        execute './gradlew', '-I', '.gradle-test-kit/init.gradle', 'release', '--info', '--stacktrace'
+        execute "./gradlew${isWindows()?'.bat':''}", '-I', '.gradle-test-kit/init.gradle', 'release', '--info', '--stacktrace'
         lastVersion()
     }
 
@@ -282,7 +333,7 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
 
     def commit(message) {
         execute 'git', 'add', '.'
-        execute 'git', 'commit', '--allow-empty', '--allow-empty-message', '-m', message
+        execute 'git', 'commit', '--allow-empty', '--allow-empty-message', '-m', message?:"''"
     }
 
     def push() {
