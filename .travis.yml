@@ -25,6 +25,6 @@ install:
 script:
 #  - ./gradlew release cobertura -Dorg.ajoberstar.grgit.auth.username=${GH_TOKEN} -Dorg.ajoberstar.grgit.auth.password -Dgradle.publish.key=${GRADLE_KEY} -Dgradle.publish.secret=${GRADLE_SECRET} --info --stacktrace
 #  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && ./gradlew release cobertura -Dorg.ajoberstar.grgit.auth.username=${GH_TOKEN} -Dorg.ajoberstar.grgit.auth.password -Dgradle.publish.key=${GRADLE_KEY} -Dgradle.publish.secret=${GRADLE_SECRET} --info --stacktrace || true'
-  - './gradlew test -Dtest.single=SemanticReleaseIntegrationAuxScriptSpec --info --stacktrace'
+  - './gradlew test --info --stacktrace'
 after_success:
   - ./gradlew coveralls
