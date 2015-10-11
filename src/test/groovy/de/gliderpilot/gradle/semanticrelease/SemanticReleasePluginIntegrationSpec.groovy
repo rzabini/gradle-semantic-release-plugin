@@ -181,7 +181,6 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         release() == 'v1.0.0'
     }
 
-    @Ignore
     def "supports release/MAJOR_X"() {
         given: "branch release/1.x"
         createBranch "release/1.x"
