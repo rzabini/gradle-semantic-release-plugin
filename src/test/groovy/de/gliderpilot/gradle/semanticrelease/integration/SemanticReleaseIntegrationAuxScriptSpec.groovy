@@ -1,5 +1,6 @@
 package de.gliderpilot.gradle.semanticrelease.integration
 
+import de.gliderpilot.gradle.semanticrelease.SemanticReleasePlugin
 import de.gliderpilot.gradle.semanticrelease.SemanticReleasePluginIntegrationSpec
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
@@ -8,13 +9,11 @@ import spock.lang.Specification
 class SemanticReleaseIntegrationAuxScriptSpec extends SemanticReleasePluginIntegrationSpec {
 
     @Override
-    void setupGradleProject(){
+    def setupGradleProject(){
         buildFile << '''
             apply from:'release.gradle'
             println version
         '''
-        setupGitignore()
-
         file('release.gradle') << """
             buildscript{
 
@@ -34,6 +33,14 @@ class SemanticReleaseIntegrationAuxScriptSpec extends SemanticReleasePluginInteg
             apply plugin: de.gliderpilot.gradle.semanticrelease.SemanticReleasePlugin
 
 """
-        runTasksSuccessfully(':wrapper')
+}
+
+    def getPluginCompileDir(){
+        URL url=SemanticReleasePlugin.class.getResource(SemanticReleasePlugin.class.getSimpleName() + ".class")
+        String classFilePath=new File(url.toURI()).absolutePath
+        if(isWindows())
+            classFilePath = classFilePath.replace('\\','/')
+        String classFileRelative = SemanticReleasePlugin.class.getName().replace('.', '/') + ".class"
+        classFilePath-classFileRelative
     }
 }

@@ -29,32 +29,14 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         setupGit()
-
         setupGradleProject()
-
-        commitIntialLayout()
-    }
-
-    protected void setupGradleProject() {
-
-
-        buildFile << """
-            buildscript{
-                dependencies{
-                    classpath files('${getPluginCompileDir()}')
-                    classpath files('${getPluginCompileDir().replace('/classes/','/resources/')}')
-                }
-            }
-
-            apply plugin: 'de.gliderpilot.semantic-release'
-            println version
-        """
         setupGitignore()
-
         runTasksSuccessfully(':wrapper')
+        commit('initial project layout')
+        push()
     }
 
-    File setupGitignore() {
+    def setupGitignore() {
         file('.gitignore') << '''\
             .gradle-test-kit/
             .gradle/
@@ -64,12 +46,14 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
     }
 
-    private void commitIntialLayout() {
-        commit('initial project layout')
-        push()
+    def setupGradleProject() {
+        buildFile << '''
+            apply plugin: 'de.gliderpilot.semantic-release'
+            println version
+        '''
     }
 
-    private void setupGit() {
+    def setupGit() {
 // create remote repository
         File origin = new File(projectDir, "../${projectDir.name}.git")
         origin.mkdir()
@@ -85,20 +69,6 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         commit 'initial commit'
         push()
     }
-
-    def getPluginCompileDir(){
-        URL url=SemanticReleasePlugin.class.getResource(SemanticReleasePlugin.class.getSimpleName() + ".class")
-        String classFilePath=new File(url.toURI()).absolutePath
-        if(isWindows())
-            classFilePath = classFilePath.replace('\\','/')
-        String classFileRelative = SemanticReleasePlugin.class.getName().replace('.', '/') + ".class"
-        classFilePath-classFileRelative
-    }
-
-    boolean isWindows(){
-        System.properties['os.name'].toLowerCase().contains('windows')
-    }
-
 
     @Unroll
     def "initial version is 1.0.0 after #type commit"() {
@@ -359,4 +329,9 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
     def checkout(String branch) {
         execute "git", "checkout", branch
     }
+
+    boolean isWindows(){
+        System.properties['os.name'].toLowerCase().contains('windows')
+    }
+
 }
