@@ -36,7 +36,6 @@ import static org.ajoberstar.gradle.git.release.semver.ChangeScope.*
 /**
  * Created by tobias on 7/26/15.
  */
-@Ignore
 class SemanticReleaseChangeLogServiceSpec extends Specification {
 
     Grgit grgit = Mock()
