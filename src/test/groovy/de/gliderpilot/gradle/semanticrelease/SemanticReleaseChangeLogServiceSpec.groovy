@@ -27,6 +27,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Timeout
 import spock.lang.Unroll
+import spock.lang.Ignore
 
 import javax.json.Json
 
@@ -35,6 +36,7 @@ import static org.ajoberstar.gradle.git.release.semver.ChangeScope.*
 /**
  * Created by tobias on 7/26/15.
  */
+@Ignore
 class SemanticReleaseChangeLogServiceSpec extends Specification {
 
     Grgit grgit = Mock()
