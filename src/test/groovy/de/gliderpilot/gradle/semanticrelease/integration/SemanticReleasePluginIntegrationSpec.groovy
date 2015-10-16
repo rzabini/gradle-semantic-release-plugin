@@ -54,6 +54,9 @@ class SemanticReleasePluginIntegrationSpec extends IntegrationSpec {
         def lines = file('.gradle-test-kit/init.gradle').readLines()
         lines.remove(0)
         lines.remove(lines.size() - 1)
+        
+        lines.removeAll {String line -> line.contains('instrumented')}
+        
         lines.join(System.getProperty("line.separator")).stripIndent()
     }
 
